@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# 模型檔(超大,不要進 git)
+llama.cpp/
+*.gguf
+
+# IDE
+.vscode/
+.idea/
+
+# 環境變數、密鑰
+.env
+*.key
+
+# OS
+.DS_Store
+Thumbs.db

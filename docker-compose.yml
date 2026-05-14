@@ -1,0 +1,47 @@
+services:
+  llamacpp-server:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: llama-server
+    ipc: host
+    ports:
+      - 15932:8080
+    volumes:
+      - ./llama.cpp:/root/.cache/llama.cpp
+    command:
+      - -m
+      - "/root/.cache/llama.cpp/Qwen3.5-0.8B-GGUF/Qwen3.5-0.8B-Q8_0.gguf"
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --alias
+      - "Qwen3.5-0.8B"
+      - --ctx-size
+      - "65535"
+      - --parallel
+      - "1"
+      - --threads
+      - "8"
+      - --flash-attn
+      - on
+      - --batch-size
+      - "256"
+      - --ubatch-size
+      - "256"
+      - --temp
+      - "0.6"
+      - --top-p
+      - "0.95"
+      - --top-k
+      - "20"
+      - --min-p
+      - "0.0"
+      - --presence-penalty
+      - "0.0"
+      - --repeat-penalty
+      - "1.0"
+      
+  my-python-app:
+    build: .                          # ← 用當前目錄的 Dockerfile build
+    depends_on:
+      - llamacpp-server    
