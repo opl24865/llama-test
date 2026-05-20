@@ -9,13 +9,15 @@ services:
       - ./llama.cpp:/root/.cache/llama.cpp
     command:
       - -m
-      - "/root/.cache/llama.cpp/Qwen3.5-0.8B-GGUF/Qwen3.5-0.8B-Q8_0.gguf"
+      - "/root/.cache/llama.cpp/Qwen2.5-1.5B-Instruct/Qwen2.5-1.5B-Instruct-Q4_K_M.gguf"
       - --host
       - 0.0.0.0
       - --port
       - "8080"
+      - --reasoning-format
+      - none
       - --alias
-      - "Qwen3.5-0.8B"
+      - "Qwen2.5-1.5B-Instruct"
       - --ctx-size
       - "65535"
       - --parallel
@@ -40,8 +42,23 @@ services:
       - "0.0"
       - --repeat-penalty
       - "1.0"
-      
-  my-python-app:
-    build: .                          # ← 用當前目錄的 Dockerfile build
+
+  llm-api:
+    build: .
+    container_name: llm-api
     depends_on:
-      - llamacpp-server    
+      - llamacpp-server
+    ports:
+      - "8000:8000"
+    environment:
+      - LLM_BASE_URL=http://llamacpp-server:8080/v1
+      - LLM_MODEL=Qwen2.5-1.5B-Instruct
+    volumes:
+      - ./app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+
+#  my-python-app:
+#    build: .                          # ← 用當前目錄的 Dockerfile build
+#    depends_on:
+#      - llamacpp-server    

@@ -5,6 +5,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY try_test.py .
+COPY . .
 
-CMD ["python", "try_test.py"]
+EXPOSE 8000
+
+CMD CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
