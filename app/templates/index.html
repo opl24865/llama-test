@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>AI 廚房助手</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 850px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        #chat-box {
+            height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 16px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .message {
+            margin: 12px 0;
+            padding: 12px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+        }
+        .user {
+            background: #d9ecff;
+            text-align: right;
+        }
+        .assistant {
+            background: #eeeeee;
+        }
+        .input-area {
+            display: flex;
+            margin-top: 16px;
+            gap: 8px;
+        }
+        textarea {
+            flex: 1;
+            height: 70px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            width: 100px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .intent {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI 廚房助手</h1>
+
+        <div id="chat-box"></div>
+
+        <div class="input-area">
+            <textarea id="message" placeholder="請輸入問題，例如：幫我產生炸雞 SOP，或整理會議紀錄..."></textarea>
+            <button onclick="sendMessage()">送出</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById("message");
+            const chatBox = document.getElementById("chat-box");
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            chatBox.innerHTML += `<div class="message user">${message}</div>`;
+            input.value = "";
+
+            chatBox.innerHTML += `<div class="message assistant" id="loading">思考中...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch("/kitchen/assistant", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+
+                document.getElementById("loading").remove();
+
+                chatBox.innerHTML += `
+                    <div class="message assistant">
+                        ${data.response}
+                    </div>
+                `;
+
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (error) {
+                document.getElementById("loading").remove();
+                chatBox.innerHTML += `<div class="message assistant">發生錯誤：${error}</div>`;
+            }
+        }
+
+        document.getElementById("message").addEventListener("keydown", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
